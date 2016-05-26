@@ -43,18 +43,18 @@ Configures:
     - Make a static IP for it. Save the information in your /etc/network/interfaces (ubuntu) steps:
 
 sudo vi /etc/network/interfaces
-#Add following in content
+-Add following in content
 auto eth2
 iface eth2 inet static
 address 192.168.0.150
 netmask 255.255.255.0
 gateway 192.168.0.1
-#content done
+-content done
 
     -   Make a static IP for it. Save the formation in /etc/sysconfig/network-scripts (centos) steps:
 
 sudo vi /etc/sysconfig/network-scripts/ifcfg-eth2
-#Following is the content
+-Following is the content
 DEVICE=eth2
 TYPE=Ethernet
 ONBOOT=yes
@@ -63,7 +63,7 @@ BOOTPROTO=static
 IPADDR=192.168.0.150
 NETMASK=255.255.255.0
 GATEWAY=192.168.0.1
-#Content done
+-Content done
 sudo ifdown eth3
 sudo ifup eth3
 
@@ -72,18 +72,18 @@ sudo ifup eth3
     - save the information in your /etc/network/interfaces (ubuntu) steps:
 
 sudo vi /etc/network/interfaces
-#Add following in content
+-Add following in content
 auto eth3
 iface eth3 inet static
 address 192.168.56.150
 netmask 255.255.255.0
 gateway 192.168.56.1
-#content done
+-content done
 
     - Save the formation in /etc/sysconfig/network-scripts (centos) steps:
 
 sudo vi /etc/sysconfig/network-scripts/ifcfg-eth3
-#Following is the content
+-Following is the content
 DEVICE=eth3
 TYPE=Ethernet
 ONBOOT=yes
@@ -92,7 +92,7 @@ BOOTPROTO=static
 IPADDR=192.168.56.150
 NETMASK=255.255.255.0
 GATEWAY=192.168.56.1
-#Content done
+-Content done
 sudo ifdown eth3
 sudo ifup eth3
 
