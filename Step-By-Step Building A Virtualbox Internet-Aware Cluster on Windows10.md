@@ -1,24 +1,26 @@
-##Motivatin:
+###Motivatin:
      1) Building a lab cluster for team's development
      2) Too many virtual machine's LAN IP causes unstable of LAN router
      3) Easy to work from home
 
-##Requirements:
+###Requirements:
     1) Building a 1 master, 4 slaves cluster by using VirtualBox.
      2) The system is built on Linux Ubuntu and CentOs virtual machines running on Windows 10.
      3) Only Master can be accessed by LAN/Internet computers. No Slaves can be accessed by LAN/Internet.
      4) Only Master has internet access
      5) Master can be ssh log in from Ineternet
 
-##Software Preparations:
+###Software Preparations:
      1) Windows 10
      2) Virtualbox
      3) Linux Ubuntu or CentOS image/iso
 
 ###IP Address Plan:
-     Master: centos-master: 192.168.0.150 (for LAN access by using Bridge-Adapter)
-                  192.168.56.150 (for connecting slaves by using Host-Only)
-     Slaves:      centos-slave1: 192.168.56.151
+     Master: centos-master:
+          192.168.0.150 (for LAN access by using Bridge-Adapter)
+          192.168.56.150 (for connecting slaves by using Host-Only)
+     Slaves:
+     centos-slave1: 192.168.56.151
      centos-slave2: 192.168.56.152
      centos-slave3: 192.168.56.153
      centos-slave4: 192.168.56.154
@@ -26,7 +28,6 @@
 ###Installations:
      - Install Virtualbox on Windows 10
      - Create 5 Linux machines for above 5 names. It's better to set up SSH no password login from each other but not neccessary for finishing this plan.
-     - Download Squid from  http://squid.acmeconsulting.it/download/dl-squid.html
 
 ###Configures:
 #####On Virtualbox console, select centos-master then using menu Settings -> Network
