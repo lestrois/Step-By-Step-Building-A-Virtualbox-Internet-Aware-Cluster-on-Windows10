@@ -14,7 +14,6 @@
      1) Windows 10
      2) Virtualbox
      3) Linux Ubuntu or CentOS image/iso
-     4) Squid Proxy
 
 ###IP Address Plan:
      Master: centos-master: 192.168.0.150 (for LAN access by using Bridge-Adapter)
@@ -31,99 +30,121 @@
 
 ###Configures:
 #####On Virtualbox console, select centos-master then using menu Settings -> Network
-    - enable Adapter1 then choose Attached to as Bridged Adapter
-    - Enable Adapter2 then choose Host-only Adapter
-        - At this step if the "Name" doesn't show option, go to Control Panel -> Network and Internet -> Network Connections to enable Virtualbox Host-Only Network
-    - Click OK
+     - enable Adapter1 then choose Attached to as Bridged Adapter
+     - Enable Adapter2 then choose Host-only Adapter
+          - At this step if the "Name" doesn't show option, go to Control Panel -> Network and Internet -> Network Connections to enable Virtualbox Host-Only Network
+     - Enable Adapter3 then choose NAT
+     - Click OK
      - Host-Only default gateway is 192.168.56.1. Check it on VB Console Menu File -> Preferences -> Network -> Host-Only Networkss. Do not need change it.
-#####Starting centos-master then log in
-     - Now run "ifconfig -a" you would see the bridge-adapter's IP 192.168.0.X should be available which is assigned by your LAN router. Remember this interface name "ethX" (X is a number depending your machine). In my case it's eth2.
-         - Make a static IP for it. Save the information in your /etc/network/interfaces (ubuntu) steps:
-     sudo vi /etc/network/interfaces
-     -Add following in content
-     auto eth2
-     iface eth2 inet static
-     address 192.168.0.150
-     netmask 255.255.255.0
-     gateway 192.168.0.1
-     -content done
+#####Starting centos-master VM then log in to configure the 3 network interfaces
+     Now the interfaces for above 3 Adapters are eth2/eth3/eth4 in my case. it chould be eth0/eth1/eth2 in your case.
+     1. Configure Bridge-Adapter to allow LAN computers' access
+          Run "ifconfig -a" you would see the bridge-adapter's IP 192.168.0.X should be available which is assigned by your LAN router. Remember this interface name "ethX" (X is a number depending your machine). In my case it's eth2.
+              - Make a static IP for it. Save the information in your /etc/network/interfaces (ubuntu) steps:
+          sudo vi /etc/network/interfaces
+          -Add following in content
+          auto eth2
+          iface eth2 inet static
+          address 192.168.0.150
+          netmask 255.255.255.0
+          gateway 192.168.0.1
+          -content done
+          
+          Make a static IP for it. Save the formation in /etc/sysconfig/network-scripts (centos) steps:
+          
+          sudo vi /etc/sysconfig/network-scripts/ifcfg-eth2
+          -Following is the content
+          DEVICE=eth2
+          TYPE=Ethernet
+          ONBOOT=yes
+          NM_CONTROLLED=yes
+          BOOTPROTO=static
+          IPADDR=192.168.0.150
+          NETMASK=255.255.255.0
+          GATEWAY=192.168.0.1
+          -Content done
+          sudo ifdown eth3
+          sudo ifup eth3
+
+          - You should be able to ssh to centos-master's IP (192.168.0.150) by using putty.
+     2. Configure Host-Only Adapter (eth3) to connect master/slaves each other.
+          run "sudo ifconfig eth3 192.168.56.150 netmask 255.255.255.0 up" to enable it, then "ping 192.168.56.1", should work.
+          - save the information in your /etc/network/interfaces (ubuntu) steps:
+          sudo vi /etc/network/interfaces
+          -Add following in content
+          auto eth3
+          iface eth3 inet static
+          address 192.168.56.150
+          netmask 255.255.255.0
+          gateway 192.168.56.1
+          -content done
+          
+          -Save the formation in /etc/sysconfig/network-scripts (centos) steps:
+          sudo vi /etc/sysconfig/network-scripts/ifcfg-eth3
+          -Following is the content
+          DEVICE=eth3
+          TYPE=Ethernet
+          ONBOOT=yes
+          NM_CONTROLLED=yes
+          BOOTPROTO=static
+          IPADDR=192.168.56.150
+          NETMASK=255.255.255.0
+          GATEWAY=192.168.56.1
+          -Content done
+          sudo ifdown eth3
+          sudo ifup eth3
+          
      
-     Make a static IP for it. Save the formation in /etc/sysconfig/network-scripts (centos) steps:
-     
-     sudo vi /etc/sysconfig/network-scripts/ifcfg-eth2
-     -Following is the content
-     DEVICE=eth2
-     TYPE=Ethernet
-     ONBOOT=yes
-     NM_CONTROLLED=yes
-     BOOTPROTO=static
-     IPADDR=192.168.0.150
-     NETMASK=255.255.255.0
-     GATEWAY=192.168.0.1
-     -Content done
-     sudo ifdown eth3
-     sudo ifup eth3
-     
-     - The result of "ifconfig -a" has an ineterface "ethY" (Y is a number depending your machine) which doesn't show IP Addresses, and it is the interface of Host-Only network is using, we need configure it. In my case it's eth3.
-     - run "sudo ifconfig eth3 192.168.56.150 netmask 255.255.255.0 up" to enable it, then "ping 192.168.56.1", should work.
-         - save the information in your /etc/network/interfaces (ubuntu) steps:
-     
-     sudo vi /etc/network/interfaces
-     -Add following in content
-     auto eth3
-     iface eth3 inet static
-     address 192.168.56.150
-     netmask 255.255.255.0
-     gateway 192.168.56.1
-     -content done
-     
-     Save the formation in /etc/sysconfig/network-scripts (centos) steps:
-     
-     sudo vi /etc/sysconfig/network-scripts/ifcfg-eth3
-     -Following is the content
-     DEVICE=eth3
-     TYPE=Ethernet
-     ONBOOT=yes
-     NM_CONTROLLED=yes
-     BOOTPROTO=static
-     IPADDR=192.168.56.150
-     NETMASK=255.255.255.0
-     GATEWAY=192.168.56.1
-     -Content done
-     sudo ifdown eth3
-     sudo ifup eth3
-     
-     - Now here should be no internet access by checking "ping github.com" because of enabling Host-Only.
-     - You should be able to ssh to centos-master's IP (192.168.0.150) by using putty.
+     3. Configure NAT Adapter (eth4) to enable internet access.
+          - save the information in your /etc/network/interfaces (ubuntu) steps:
+          sudo vi /etc/network/interfaces
+          -Add following in content
+          auto eth4
+          iface eth3 inet dhcp
+          -content done
+          
+          -Save the formation in /etc/sysconfig/network-scripts (centos) steps:
+          sudo vi /etc/sysconfig/network-scripts/ifcfg-eth3
+          -Following is the content
+          DEVICE=eth4
+          TYPE=Ethernet
+          ONBOOT=yes
+          NM_CONTROLLED=yes
+          BOOTPROTO=dhcp
+          -Content done
+          sudo ifdown eth4
+          sudo ifup eth4
+          
+          -Then "ping github.com" you should get internet access.
+          
 #####On Virtualbox console, select centos-slave1 then using menu Settings -> Network
-         - Enable Adapter2 then choose Host-only Adapter
-             - At this step if the "Name" doesn't show option, go to Control Panel -> Network and Internet -> Network Connections to enable Virtualbox Host-Only Network
+     - Enable Adapter2 then choose Host-only Adapter
+          - At this step if the "Name" doesn't show option, go to Control Panel -> Network and Internet -> Network Connections to enable Virtualbox Host-Only Network
          - Click OK
      - Starting centos-slave1 then log in. Find out the right interface name. In my case it's eth2
      - save the information in your /etc/network/interfaces (ubuntu) steps:
-     sudo vi /etc/network/interfaces
-     #Add following in content
-     auto eth2
-     iface eth2 inet static
-     address 192.168.56.151
-     netmask 255.255.255.0
-     gateway 192.168.56.1
-     #content done
-     
+          sudo vi /etc/network/interfaces
+          #Add following in content
+          auto eth2
+          iface eth2 inet static
+          address 192.168.56.151
+          netmask 255.255.255.0
+          gateway 192.168.56.1
+          #content done
      - Save the formation in /etc/sysconfig/network-scripts (centos) steps:
-     sudo vi /etc/sysconfig/network-scripts/ifcfg-eth2
-     #Following is the content
-     DEVICE=eth2
-     TYPE=Ethernet
-     ONBOOT=yes
-     NM_CONTROLLED=yes
-     BOOTPROTO=static
-     IPADDR=192.168.56.151
-     NETMASK=255.255.255.0
-     GATEWAY=192.168.56.1
-     #Content done
-     sudo ifdown eth2
-     sudo ifup eth2
+          sudo vi /etc/sysconfig/network-scripts/ifcfg-eth2
+          #Following is the content
+          DEVICE=eth2
+          TYPE=Ethernet
+          ONBOOT=yes
+          NM_CONTROLLED=yes
+          BOOTPROTO=static
+          IPADDR=192.168.56.151
+          NETMASK=255.255.255.0
+          GATEWAY=192.168.56.1
+          #Content done
+          sudo ifdown eth2
+          sudo ifup eth2
      
      - ping 192.168.56.150 it should work. No internet by checking "ping github.com".
 #####Repeating above steps to finsh other 3 slaves.
@@ -136,10 +157,9 @@
 #####Connect From Internet
      - Now Let's Forward Master address to be accessed by Internet. Login your LAN Router (TPLink series) http://192.168.0.1
      - Go to Forwarding -> Virtual Servers Add SSH Port and click "OK" as following
-     
-     Service Port: 5822
-     Internal Port: 22
-     IP Address: 192.168.0.150
+          Service Port: 5822
+          Internal Port: 22
+          IP Address: 192.168.0.150
      - Get your Internet IP of your router, try putty to ssh XXX.XXX.XXX.XXX -p 5822 to verify you ssh it from internet
 
 ###Testing:
