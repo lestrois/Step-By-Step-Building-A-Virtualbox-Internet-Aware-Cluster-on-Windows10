@@ -1,21 +1,21 @@
-###Motivatin:
+### Motivation:
      1) Building a lab cluster for team's development
      2) Too many virtual machine's LAN IP causes unstable of LAN router
      3) Easy to work from home
 
-###Requirements:
+### Requirements:
     1) Building a 1 master, 4 slaves cluster by using VirtualBox.
      2) The system is built on Linux Ubuntu and CentOs virtual machines running on Windows 10.
      3) Only Master can be accessed by LAN/Internet computers. No Slaves can be accessed by LAN/Internet.
      4) Only Master has internet access
      5) Master can be ssh log in from Ineternet
 
-###Software Preparations:
+### Software Preparations:
      1) Windows 10
      2) Virtualbox
      3) Linux Ubuntu or CentOS image/iso
 
-###IP Address Plan:
+### IP Address Plan:
      Master: centos-master:
           192.168.0.150 (for LAN access by using Bridge-Adapter)
           192.168.56.150 (for connecting slaves by using Host-Only)
@@ -25,19 +25,19 @@
      centos-slave3: 192.168.56.153
      centos-slave4: 192.168.56.154
 
-###Installations:
+### Installations:
      - Install Virtualbox on Windows 10
      - Create 5 Linux machines for above 5 names. It's better to set up SSH no password login from each other but not neccessary for finishing this plan.
 
-###Configures:
-#####On Virtualbox console, select centos-master then using menu Settings -> Network
+### Configures:
+##### On Virtualbox console, select centos-master then using menu Settings -> Network
      - enable Adapter1 then choose Attached to as Bridged Adapter
      - Enable Adapter2 then choose Host-only Adapter
           - At this step if the "Name" doesn't show option, go to Control Panel -> Network and Internet -> Network Connections to enable Virtualbox Host-Only Network
      - Enable Adapter3 then choose NAT
      - Click OK
      - Host-Only default gateway is 192.168.56.1. Check it on VB Console Menu File -> Preferences -> Network -> Host-Only Networkss. Do not need change it.
-#####Starting centos-master VM then log in to configure the 3 network interfaces
+##### Starting centos-master VM then log in to configure the 3 network interfaces
      Now the interfaces for above 3 Adapters are eth2/eth3/eth4 in my case. it chould be eth0/eth1/eth2 in your case.
      1. Configure Bridge-Adapter to allow LAN computers' access
           Run "ifconfig -a" you would see the bridge-adapter's IP 192.168.0.X should be available which is assigned by your LAN router. Remember this interface name "ethX" (X is a number depending your machine). In my case it's eth2.
@@ -118,7 +118,7 @@
           
           -Then "ping github.com" you should get internet access.
           
-#####On Virtualbox console, select centos-slave1 then using menu Settings -> Network
+##### On Virtualbox console, select centos-slave1 then using menu Settings -> Network
      - Enable Adapter2 then choose Host-only Adapter
           - At this step if the "Name" doesn't show option, go to Control Panel -> Network and Internet -> Network Connections to enable Virtualbox Host-Only Network
          - Click OK
@@ -148,14 +148,14 @@
           sudo ifup eth2
      
      - ping 192.168.56.150 it should work. No internet by checking "ping github.com".
-#####Repeating above steps to finsh other 3 slaves.
-#####On all master/slaves edit /etc/hosts to add the following.
+##### Repeating above steps to finsh other 3 slaves.
+##### On all master/slaves edit /etc/hosts to add the following.
      192.168.56.150 master centos-master
      192.168.56.151 slave1 centos-slave1
      192.168.56.152 slave2 centos-slave2
      192.168.56.153 slave3 centos-slave3
      192.168.56.154 slave4 centos-slave4
-#####Connect From Internet
+##### Connect From Internet
      - Now Let's Forward Master address to be accessed by Internet. Login your LAN Router (TPLink series) http://192.168.0.1
      - Go to Forwarding -> Virtual Servers Add SSH Port and click "OK" as following
           Service Port: 5822
@@ -163,7 +163,7 @@
           IP Address: 192.168.0.150
      - Get your Internet IP of your router, try putty to ssh XXX.XXX.XXX.XXX -p 5822 to verify you ssh it from internet
 
-###Testing:
+### Testing:
      Assume you have installed Hadoop/Spark on it
      [hadoop@centos-master ~]$ start-dfs.sh
      16/05/26 10:28:30 WARN util.NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
